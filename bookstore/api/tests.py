@@ -1,14 +1,19 @@
 # api/tests.py
+from contextvars import Token
 from django.test import TestCase
 from rest_framework.test import APIClient
 from rest_framework import status
+from django.contrib.auth.models import User
 from .models import Author, Book
 from .factories import AuthorFactory, BookFactory
 import faker
 
 class APITests(TestCase):
     def setUp(self):
+        self.user = User.objects.create_user(username='testuser', password='testpassword')
+        self.token = Token.objects.create(user=self.user)
         self.client = APIClient()
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
         self.fake = faker.Faker()
         self.fake.seed_instance(0)
 
