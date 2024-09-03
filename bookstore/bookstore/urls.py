@@ -16,9 +16,14 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import path, include
+from django.http import HttpResponse
+
+def home(request):
+    return HttpResponse("Bem-vindo à página inicial do Bookstore!")
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
-    path("api/", include('api.urls')),
+    path('admin/', admin.site.urls),
+    path('api/', include('api.urls')),
+    path('', home),  # Adiciona a rota raiz
 ]
