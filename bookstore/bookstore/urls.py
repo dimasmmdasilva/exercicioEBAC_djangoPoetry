@@ -24,6 +24,6 @@ def home(request):
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('api.urls')),
+    path('api/', include('bookstore.api.urls')),  # Corrija para refletir o caminho correto
     path('', home),  # Adiciona a rota raiz
 ]
