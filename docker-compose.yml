@@ -11,6 +11,8 @@ services:
       POSTGRES_PASSWORD: postgres
     ports:
       - "5432:5432"
+    networks:
+      - minha_rede
 
   web:
     build:
@@ -30,6 +32,12 @@ services:
       POSTGRES_PASSWORD: postgres
       DB_HOST: db
       DB_PORT: 5432
+    networks:
+      - minha_rede
 
 volumes:
   postgres_data:
+
+networks:
+  minha_rede:
+    driver: bridge
