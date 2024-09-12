@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from bookstore.api.viewsets import AuthorViewSet, BookViewSet
+from product.viewsets import AuthorViewSet, BookViewSet
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 router = DefaultRouter()

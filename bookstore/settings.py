@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     "django_extensions",
     "debug_toolbar",
     "bookstore.api",
+    "product",
+    "order",
 ]
 
 MIDDLEWARE = [
@@ -54,7 +56,7 @@ MIDDLEWARE = [
     "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
-ROOT_URLCONF = 'bookstore.bookstore.urls'
+ROOT_URLCONF = 'bookstore.urls'
 
 TEMPLATES = [
     {
@@ -72,7 +74,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'bookstore.bookstore.wsgi.application'
+WSGI_APPLICATION = 'bookstore.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases

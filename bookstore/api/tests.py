@@ -3,8 +3,8 @@ from rest_framework.test import APIClient
 from rest_framework import status
 from django.contrib.auth.models import User
 from django.urls import reverse
-from .models import Author, Book
-from .factories import AuthorFactory, BookFactory
+from product.models import Author, Book  # Agora importado de 'product'
+from product.factories import AuthorFactory, BookFactory  # Agora importado de 'product.factories'
 import faker
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -40,26 +40,26 @@ class APITests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Book.objects.count(), 1)
         self.assertEqual(Book.objects.get().title, 'Test Book')
-def test_list_authors(self):
-    # Limpar antes de criar novos dados para o teste
-    Author.objects.all().delete()
-    
-    AuthorFactory.create_batch(3)
-    url = reverse('author-list')
-    response = self.client.get(url)
-    self.assertEqual(response.status_code, status.HTTP_200_OK)
-    self.assertEqual(len(response.data), 3)
 
-def test_list_books(self):
-    # Limpar antes de criar novos dados para o teste
-    Book.objects.all().delete()
-    
-    BookFactory.create_batch(3)
-    url = reverse('book-list')
-    response = self.client.get(url)
-    self.assertEqual(response.status_code, status.HTTP_200_OK)
-    self.assertEqual(len(response.data), 3)
+    def test_list_authors(self):
+        # Limpar antes de criar novos dados para o teste
+        Author.objects.all().delete()
+        
+        AuthorFactory.create_batch(3)
+        url = reverse('author-list')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 3)
 
+    def test_list_books(self):
+        # Limpar antes de criar novos dados para o teste
+        Book.objects.all().delete()
+        
+        BookFactory.create_batch(3)
+        url = reverse('book-list')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 3)
 
     def test_create_author_invalid_data(self):
         url = reverse('author-list')

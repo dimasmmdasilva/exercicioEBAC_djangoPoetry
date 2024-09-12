@@ -7,7 +7,7 @@ print("Configurando as variáveis de ambiente")
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bookstore.settings')
 django.setup()
 
-from api.models import Author, Book
+from product.models import Author, Book
 
 print("Configurando Faker")
 fake = Faker()

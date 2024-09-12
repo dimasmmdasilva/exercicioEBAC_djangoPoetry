@@ -18,8 +18,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: >
-      sh -c "python bookstore/bookstore/manage.py migrate && python bookstore/bookstore/manage.py runserver 0.0.0.0:8000"
+    command: sh -c "poetry run python manage.py migrate && poetry run python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/exercicioEBAC_djangoPoetry
     ports:
@@ -32,6 +31,7 @@ services:
       POSTGRES_PASSWORD: postgres
       DB_HOST: db
       DB_PORT: 5432
+      DJANGO_SETTINGS_MODULE: bookstore.settings
     networks:
       - minha_rede
 

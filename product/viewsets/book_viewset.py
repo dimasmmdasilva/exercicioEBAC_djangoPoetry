@@ -1,6 +1,6 @@
 from rest_framework import viewsets
-from ..models import Book
-from ..serializers import BookSerializer
+from product.models import Book
+from product.serializers import BookSerializer
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
 
