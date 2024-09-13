@@ -49,6 +49,7 @@ jobs:
           POSTGRES_PASSWORD: postgres
           DB_HOST: localhost
           DB_PORT: 5432
+          DJANGO_SETTINGS_MODULE: bookstore.settings
         run: |
           poetry run python manage.py migrate
 
