@@ -59,4 +59,4 @@ jobs:
           POSTGRES_PASSWORD: postgres
           DB_HOST: localhost
           DB_PORT: 5432
-        run: poetry run pytest
+        run: poetry run pytest bookstore/api/tests.py

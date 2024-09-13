@@ -3,8 +3,8 @@ from rest_framework.test import APIClient
 from rest_framework import status
 from django.contrib.auth.models import User
 from django.urls import reverse
-from product.models import Author, Book  # Agora importado de 'product'
-from product.factories import AuthorFactory, BookFactory  # Agora importado de 'product.factories'
+from product.models import Author, Book
+from product.factories import AuthorFactory, BookFactory
 import faker
 from rest_framework_simplejwt.tokens import RefreshToken
 
