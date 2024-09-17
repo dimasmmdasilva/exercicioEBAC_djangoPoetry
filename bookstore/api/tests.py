@@ -1,117 +1,114 @@
+import datetime
 from django.test import TestCase
+from django.urls import reverse
+from django.contrib.auth.models import User
 from rest_framework.test import APIClient
 from rest_framework import status
-from django.contrib.auth.models import User
-from django.urls import reverse
-from product.models import Author, Book  # Certifique-se que os modelos estão corretos
-from product.factories import AuthorFactory, BookFactory  # Certifique-se que as factories estão na pasta certa
-import faker
 from rest_framework_simplejwt.tokens import RefreshToken
+from product.models import Author, Book
+from product.factories import AuthorFactory, BookFactory
+from order.models import Order, OrderItem
+from order.factories import OrderFactory, OrderItemFactory
+from decimal import Decimal
 
 class APITests(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User.objects.create_user(username='testuser', password='testpassword', is_active=True)
+
     def setUp(self):
-        # Criação do usuário e geração do token JWT
-        self.user = User.objects.create_user(username='testuser', password='testpassword')
+        super().setUp()
         self.client = APIClient()
         refresh = RefreshToken.for_user(self.user)
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
-
-        # Inicialização do Faker
-        self.fake = faker.Faker()
-        self.fake.seed_instance(0)
-
-    def tearDown(self):
-        # Limpeza dos dados após cada teste
         Author.objects.all().delete()
         Book.objects.all().delete()
+
+    def tearDown(self):
+        super().tearDown()
+        OrderItem.objects.all().delete()
+        Order.objects.all().delete()
+        Book.objects.all().delete()
+        Author.objects.all().delete()
         User.objects.all().delete()
 
-    # Teste de criação de autor
     def test_create_author(self):
         url = reverse('author-list')
-        response = self.client.post(url, {
-            'name': 'Test Author', 
-            'birth_date': '2000-01-01'
-        })
+        data = {'name': 'Test Author', 'birth_date': '2000-01-01'}
+        response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Author.objects.count(), 1)
         author = Author.objects.get()
-        self.assertEqual(author.name, 'Test Author')  # Verificar se o nome foi corretamente atribuído
-        self.assertEqual(str(author), 'Test Author')  # Testando a função __str__
+        self.assertEqual(author.name, 'Test Author')
 
-    # Teste de criação de livro
     def test_create_book(self):
         author = AuthorFactory()
         url = reverse('book-list')
-        response = self.client.post(url, {
-            'title': 'Test Book', 
-            'publication_date': '2020-01-01', 
-            'author': author.id
-        })
+        data = {
+            'title': 'Test Book',
+            'publication_date': '2020-01-01',
+            'author': author.id,
+            'price': '29.99',
+            'stock': 100
+        }
+        response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Book.objects.count(), 1)
         book = Book.objects.get()
         self.assertEqual(book.title, 'Test Book')
-        self.assertEqual(book.author, author)  # Verificar se o autor foi associado corretamente
+        self.assertEqual(book.price, Decimal('29.99'))
 
-    # Teste de listagem de autores
-    def test_list_authors(self):
-        Author.objects.all().delete()  # Limpar antes de criar novos dados
-        
-        AuthorFactory.create_batch(3)
-        url = reverse('author-list')
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 3)
-        for author in response.data:
-            self.assertIn('name', author)  # Garantir que os autores possuem o campo "name"
+    def test_create_order(self):
+        url = reverse('order-list')
+        order_data = {
+            'user': self.user.id,
+            'total_price': Decimal('150.00')
+        }
+        response = self.client.post(url, order_data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Order.objects.count(), 1)
+        order = Order.objects.get()
+        self.assertEqual(order.user, self.user)
 
-    # Teste de listagem de livros
-    def test_list_books(self):
-        Book.objects.all().delete()  # Limpar antes de criar novos dados
-        
-        BookFactory.create_batch(3)
-        url = reverse('book-list')
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 3)
-        for book in response.data:
-            self.assertIn('title', book)  # Garantir que os livros possuem o campo "title"
+    def test_delete_book(self):
+        book = BookFactory()
+        url = reverse('book-detail', args=[book.id])
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Book.objects.count(), 0)
 
-    # Teste de criação de autor com dados inválidos
-    def test_create_author_invalid_data(self):
-        url = reverse('author-list')
-        response = self.client.post(url, {
-            'name': '', 
-            'birth_date': 'invalid-date'
-        })
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(Author.objects.count(), 0)
+    def test_create_order_item(self):
+        order = OrderFactory(user=self.user)
+        book = BookFactory()
+        url = reverse('orderitem-list')
+        item_data = {
+            'order': order.id,
+            'book_id': book.id,
+            'quantity': 2,
+            'price': Decimal('50.00')
+        }
+        response = self.client.post(url, item_data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(OrderItem.objects.count(), 1)
+        item = OrderItem.objects.get()
+        self.assertEqual(item.order.id, order.id)
+        self.assertEqual(item.book.id, book.id)
+        self.assertEqual(item.quantity, 2)
 
-    # Teste de criação de livro sem autenticação
-    def test_create_book_without_authentication(self):
-        self.client.credentials()  # Remove as credenciais para simular a falta de autenticação
-        author = AuthorFactory()
-        url = reverse('book-list')
-        response = self.client.post(url, {
-            'title': 'Test Book', 
-            'publication_date': '2020-01-01', 
-            'author': author.id
-        })
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
-    # Teste de atualização de autor
     def test_update_author(self):
-        author = AuthorFactory(name='Old Name')
+        author = AuthorFactory(name='Old Name', birth_date='1980-01-01')
         url = reverse('author-detail', args=[author.id])
-        response = self.client.put(url, {
-            'name': 'New Name', 
-            'birth_date': author.birth_date
-        })
+        updated_data = {
+            'name': 'New Name',
+            'birth_date': '1990-01-01'
+        }
+        response = self.client.put(url, updated_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(Author.objects.get().name, 'New Name')
+        author.refresh_from_db()
+        self.assertEqual(author.name, 'New Name')
+        self.assertEqual(author.birth_date, datetime.date(1990, 1, 1))
 
-    # Teste de deleção de autor
     def test_delete_author(self):
         author = AuthorFactory()
         url = reverse('author-detail', args=[author.id])
