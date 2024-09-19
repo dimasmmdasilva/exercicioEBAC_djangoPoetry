@@ -1,0 +1,64 @@
+name: CI for Django with Poetry and Docker
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_DB: bookstore
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install Poetry
+        run: pip install poetry
+
+      - name: Install dependencies
+        run: poetry install
+
+      - name: Run migrations
+        env:
+          POSTGRES_DB: bookstore
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DJANGO_SETTINGS_MODULE: bookstore.settings
+        run: |
+          poetry run python manage.py migrate
+
+      - name: Run tests
+        env:
+          POSTGRES_DB: bookstore
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DJANGO_SETTINGS_MODULE: bookstore.settings
+        run: poetry run pytest bookstore/api/tests.py
