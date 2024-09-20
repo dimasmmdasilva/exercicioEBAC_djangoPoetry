@@ -35,6 +35,9 @@ RUN poetry show django
 # Copiar o restante do código para o contêiner
 COPY . .
 
+# Coletar os arquivos estáticos
+RUN poetry run python manage.py collectstatic --noinput
+
 # Expor a porta que o Django vai rodar
 EXPOSE 8000
 
@@ -42,4 +45,4 @@ EXPOSE 8000
 ENV PYTHONPATH="/exercicioEBAC_djangoPoetry:/exercicioEBAC_djangoPoetry/.venv/lib/python3.12/site-packages"
 
 # Comando para rodar as migrações e iniciar o servidor, ativando o ambiente virtual
-CMD ["poetry", "run", "python", "manage.py", "migrate", "&&", "poetry", "run", "python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["sh", "-c", "poetry run python manage.py migrate && poetry run gunicorn bookstore.wsgi:application --bind 0.0.0.0:8000"]
