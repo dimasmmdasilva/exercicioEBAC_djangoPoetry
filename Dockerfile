@@ -27,7 +27,7 @@ WORKDIR /exercicioEBAC_djangoPoetry
 COPY pyproject.toml poetry.lock /exercicioEBAC_djangoPoetry/
 
 # Instalar as dependências do Poetry
-RUN poetry install --no-root
+RUN poetry install
 
 # Verificar a instalação do Django
 RUN poetry show django
