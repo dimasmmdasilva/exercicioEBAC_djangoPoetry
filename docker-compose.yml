@@ -1,40 +1,23 @@
 version: '3.8'
 
 services:
-  db:
-    image: postgres:13
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    environment:
-      POSTGRES_DB: bookstore
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "5432:5432"
-    networks:
-      - minha_rede
-
   web:
     build:
       context: .
-      dockerfile: dockerfile
+      dockerfile: Dockerfile
     command: sh -c "poetry run gunicorn bookstore.wsgi:application --bind 0.0.0.0:8000"
     ports:
       - "8000:8000"
-    depends_on:
-      - db
     environment:
-      POSTGRES_DB: bookstore
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      DB_HOST: db
+      POSTGRES_DB: bookstoreebac_db
+      POSTGRES_USER: bookstoreebac_db_user
+      POSTGRES_PASSWORD: ShYdIoEFCpKY3rOJ6crNhQgP0ktBJ2DP
+      DB_HOST: dpg-crmp0k1u0jms7397ao50-a
       DB_PORT: 5432
       DJANGO_SETTINGS_MODULE: bookstore.settings
+      DATABASE_URL: "postgres://bookstoreebac_db_user:ShYdIoEFCpKY3rOJ6crNhQgP0ktBJ2DP@dpg-crmp0k1u0jms7397ao50-a:5432/bookstoreebac_db"
     networks:
       - minha_rede
-
-volumes:
-  postgres_data:
 
 networks:
   minha_rede:
