@@ -8,7 +8,6 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     services:
@@ -26,6 +25,12 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
+    env:
+      DATABASE_URL: postgres://bookstoreebac_db_user:ShYdIoEFCpKY3rOJ6crNhQgP0ktBJ2DP@localhost:5432/bookstoreebac_db
+      DJANGO_SETTINGS_MODULE: bookstore.settings
+      SECRET_KEY: django-insecure-^d$@g!%52gimar0=12+2l67(2f6psk4#m-_+&df*9tsfb9k0dy
+      DEBUG: False
+
     steps:
     - uses: actions/checkout@v2
 
@@ -38,10 +43,6 @@ jobs:
       run: |
         pip install poetry
         poetry install
-
-    - name: Copy database config
-      run: |
-        echo "DATABASE_URL=postgres://bookstoreebac_db_user:ShYdIoEFCpKY3rOJ6crNhQgP0ktBJ2DP@localhost:5432/bookstoreebac_db" > .env
 
     - name: Run migrations
       run: |

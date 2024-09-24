@@ -7,14 +7,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
-    environment:
-      POSTGRES_DB: bookstoreebac_db
-      POSTGRES_USER: bookstoreebac_db_user
-      POSTGRES_PASSWORD: ShYdIoEFCpKY3rOJ6crNhQgP0ktBJ2DP
-      DB_HOST: dpg-crmp0k1u0jms7397ao50-a
-      DB_PORT: 5432
-      DJANGO_SETTINGS_MODULE: bookstore.settings
-      DATABASE_URL: "postgres://bookstoreebac_db_user:ShYdIoEFCpKY3rOJ6crNhQgP0ktBJ2DP@dpg-crmp0k1u0jms7397ao50-a:5432/bookstoreebac_db"
+    env_file:
+      - .env
     networks:
       - minha_rede
 
