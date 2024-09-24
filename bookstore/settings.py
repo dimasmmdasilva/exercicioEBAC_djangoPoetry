@@ -11,7 +11,7 @@ environ.Env.read_env()  # Ler o arquivo .env
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('SECRET_KEY')  # Usar a variável de ambiente
+SECRET_KEY = 'django-insecure-^d$@g!%52gimar0=12+2l67(2f6psk4#m-_+&df*9tsfb9k0dy'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool('DEBUG', default=False)  # Converter para booleano
