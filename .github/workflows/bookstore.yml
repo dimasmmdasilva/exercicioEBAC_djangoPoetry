@@ -1,12 +1,10 @@
-name: CI for Django with Poetry and Docker
+name: Django CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   build:
@@ -16,49 +14,40 @@ jobs:
       postgres:
         image: postgres:13
         env:
-          POSTGRES_DB: bookstore
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: bookstoreebac_db_user
+          POSTGRES_PASSWORD: ShYdIoEFCpKY3rOJ6crNhQgP0ktBJ2DP
+          POSTGRES_DB: bookstoreebac_db
         ports:
           - 5432:5432
         options: >-
-          --health-cmd="pg_isready -U postgres"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgres://bookstoreebac_db_user:ShYdIoEFCpKY3rOJ6crNhQgP0ktBJ2DP@localhost:5432/bookstoreebac_db
+      DJANGO_SETTINGS_MODULE: bookstore.settings
+      SECRET_KEY: django-insecure-^d$@g!%52gimar0=12+2l67(2f6psk4#m-_+&df*9tsfb9k0dy
+      DEBUG: False
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    - uses: actions/checkout@v2
 
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.12'
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.12
 
-      - name: Install Poetry
-        run: pip install poetry
+    - name: Install dependencies
+      run: |
+        pip install poetry
+        poetry install
 
-      - name: Install dependencies
-        run: poetry install
+    - name: Run migrations
+      run: |
+        poetry run python manage.py migrate
 
-      - name: Run migrations
-        env:
-          POSTGRES_DB: bookstore
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          DB_HOST: localhost
-          DB_PORT: 5432
-          DJANGO_SETTINGS_MODULE: bookstore.settings
-        run: |
-          poetry run python manage.py migrate
-
-      - name: Run tests
-        env:
-          POSTGRES_DB: bookstore
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          DB_HOST: localhost
-          DB_PORT: 5432
-          DJANGO_SETTINGS_MODULE: bookstore.settings
-        run: poetry run pytest bookstore/api/tests.py
+    - name: Run tests
+      run: |
+        poetry run python manage.py test
