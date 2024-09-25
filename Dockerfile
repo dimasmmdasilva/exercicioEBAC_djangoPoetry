@@ -36,7 +36,7 @@ RUN poetry show django
 COPY . .
 
 # Coletar os arquivos estáticos
-RUN poetry run python manage.py collectstatic --noinput
+RUN poetry run python manage.py
 
 # Expor a porta que o Django vai rodar
 EXPOSE 8000
